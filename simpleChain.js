@@ -63,9 +63,11 @@ class Blockchain{
 
   // Get block height (returns the count);
   getBlockHeight(){ //modify this function to getBlockHeight by blockHeight from the db and not from the array
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
       db.getBlocksCount().then((height) => { 
         resolve(height); 
+      }).catch(() => { 
+        reject('Error');
       });
     })
 
@@ -79,7 +81,8 @@ class Blockchain{
       then((block) => {
         resolve(JSON.parse(block));
       }).catch(() => { 
-        reject('Error')});
+        reject('Error');
+      });
     });
   }
 
@@ -89,16 +92,14 @@ class Blockchain{
       // get block object
       this.getBlock(blockHeight).then((block) => {
         let blockHash = block.hash;
-        console.log('blocHash source: ');
-        console.log(blockHash);
         // remove block hash to test block integrity
         block.hash = '';
         // generate block hash
         let validBlockHash = SHA256(JSON.stringify(block)).toString();
-        console.log('block hash generetad: ');
-        console.log(validBlockHash);
+        console.log('Block #:' + block.height);
         // Compare
         if (blockHash===validBlockHash) {
+          console.log('is valid');
           return resolve(true);
         } else {
           console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
@@ -110,26 +111,52 @@ class Blockchain{
     }.bind(this));
   }
 
-  // Validate blockchain
-  // validateChain(){
-  //   let errorLog = [];
+  //Validate blockchain
+  validateChain(){
+    let errorLog = [];
 
-  //   for (var i = 0; i < this.chain.length-1; i++) {
-  //     // validate block
-  //     if (!this.validateBlock(i))errorLog.push(i);
-  //     // compare blocks hash link
-  //     let blockHash = this.chain[i].hash;
-  //     let previousHash = this.chain[i+1].previousBlockHash;
-  //     if (blockHash!==previousHash) {
-  //       errorLog.push(i);
-  //     }
-  //   }
+    return new Promise(function(resolve, reject) {
+      this.getBlockHeight().then((height) => {
+        console.log(height);
+        for (var i = 0; i < height; i++) {
+          // validate block
+          this.validateBlock(i).then((result) => {
+            console.log('validading block...');
+            console.log('result: ' + result);
+            if(!result) errorLog.push(i);
+          }).catch(() => { 
+            console.log('block:' + i + 'Error');
+          });
 
-  //   if (errorLog.length>0) {
-  //     console.log('Block errors = ' + errorLog.length);
-  //     console.log('Blocks: '+errorLog);
-  //   } else {
-  //     console.log('No errors detected');
-  //   }
-  // }
+          //compare blocks hash link
+          if(i < height -1){
+            this.getBlock(i).then((block) => {
+              let blockHash = block.hash
+              console.log(blockHash);
+
+              this.getBlock(i+1).then((nextBlock) => {
+                let previousHash = nextBlock.previousHash;
+                if(blockHash!==previousHash) errorLog.push(i);
+              }).catch(() => {
+                return console.log('block not found ERROR2');
+              });
+              // console.log(blockHash);
+            }).catch(() => {
+              return console.log('block not found ERROR');
+            }).bind(this);
+          }
+        }
+
+        if (errorLog.length>0) {
+          console.log('Block errors = ' + errorLog.length);
+          console.log('Blocks: '+errorLog);
+          return resolve('Invalid');
+        } else {
+          return resolve('No errors detected');
+        }
+      }).catch(() => { 
+        reject('Error')
+      });
+    }.bind(this));
+  }
 }

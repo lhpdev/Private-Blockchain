@@ -50,7 +50,7 @@ class LevelSandbox {
           reject(err);
       })
       .on('close', function () {
-          console.log('Total:' + count);
+          console.log('Blocks count:' + count);
           resolve(count);
       });
     });
