@@ -39,15 +39,17 @@ class Blockchain{
   addBlock(newBlock){
     this.getBlockHeight().then((height) => {
       if (height > 0) {
-        return this.getBlock(height - 1).then((previousBlock) => { 
+        this.getBlock(height - 1).then((previousBlock) => { 
           newBlock.height = height;
           // UTC timestamp
           newBlock.time = new Date().getTime().toString().slice(0,-3);
           // Block hash with SHA256 using newBlock and converting to a string
           newBlock.previousBlockHash = previousBlock.hash;
           newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-          db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { console.log(block) });
-          console.log(newBlock);
+          db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { 
+            console.log(block);
+            return block 
+          });
         });
       } else {
         newBlock.height = 0;
@@ -55,8 +57,10 @@ class Blockchain{
         newBlock.time = new Date().getTime().toString().slice(0,-3);
         // Block hash with SHA256 using newBlock and converting to a string
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-        db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { console.log(block) });
-        console.log(newBlock);
+        db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { 
+          console.log(block);
+          return block 
+        });
       }
     });
   }
@@ -65,24 +69,22 @@ class Blockchain{
   getBlockHeight(){ //modify this function to getBlockHeight by blockHeight from the db and not from the array
     return new Promise((resolve, reject) => {
       db.getBlocksCount().then((height) => { 
-        resolve(height); 
+        return resolve(height); 
       }).catch(() => { 
-        reject('Error');
+        return reject('Error');
       });
-    })
-
+    });
   }
 
   // get block
   getBlock(blockHeight){ //modify this function to getBlock by blockHeight from the db and not from the array
     //return object as a single string
     return new Promise((resolve, reject) => {
-      db.getLevelDBData(blockHeight).
-      then((block) => {
-        resolve(JSON.parse(block));
+      db.getLevelDBData(blockHeight).then((block) => {
+        return resolve(JSON.parse(block));
       }).catch((err) => { 
         console.log(err);
-        reject(err);
+        return reject(err);
       });
     });
   }
@@ -113,10 +115,8 @@ class Blockchain{
   //Validate blockchain
   validateChain(){
     let errorLog = [];
-
     return new Promise((resolve, reject) => {
-      this.getBlockHeight().then((height) => {
-        console.log(height);
+      return this.getBlockHeight().then((height) => {
         for (var i = 0; i < height; i++) {
           // validate block
           this.validateBlock(i).then((blockHeight, result) => {
@@ -124,40 +124,29 @@ class Blockchain{
           }).catch(() => { 
             console.log('block:' + blockHeight + 'Error');
           });
-
           //compare blocks hash link
           if(i < height -1){
-
             this.getBlock(i).then((block) => {
               let blockHash = block.hash
-              console.log('blockHash');
-              console.log(blockHash);
-
               this.getBlock(block.height + 1).then((nextBlock) => {
                 let previousHash = nextBlock.previousBlockHash;
-                console.log('previousHash:');
-                console.log(previousHash);
-
                 if(blockHash!==previousHash){
                   errorLog.push(block.height);
                 } 
-                
               }).catch(() => {
-                return console.log('block not found ERROR2');
+                return console.log('Error');
               });
-              // console.log(blockHash);
             }).catch(() => {
-              return console.log('block not found ERROR');
+              return console.log('Error');
             });
           }
         }
-
         if (errorLog.length>0) {
           console.log('Block errors = ' + errorLog.length);
           console.log('Blocks: '+errorLog);
-          return resolve('Invalid');
+          return resolve('Blockchain is Invalid');
         } else {
-          return resolve('No errors detected');
+          return resolve('No errors detected. Blockchain is valid!');
         }
       }).catch(() => { 
         reject('Error')
@@ -166,6 +155,12 @@ class Blockchain{
   }
 }
 
-let blockchain = new Blockchain();
-
-blockchain.validateChain().then((result) => { console.log(result) } );
+// let blockchain = new Blockchain();
+// blockchain.getBlockHeight().then((height) => { console.log(height) } );
+// blockchain.addBlock(new Block('new block')).then((block) => { console.log(block) } );
+// blockchain.getBlockHeight().then((height) => { console.log(height) } );
+// blockchain.getBlock(0).then((block) => { console.log(block) } );
+// blockchain.getBlock(1).then((block) => { console.log(block) } );
+// blockchain.validateBlock(0).then((isValid) => { console.log(isValid) } );
+// blockchain.validateBlock(1).then((isValid) => { console.log(isValid) } );
+// blockchain.validateChain().then((result) => { console.log(result) } );

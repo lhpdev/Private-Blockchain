@@ -17,16 +17,13 @@ class LevelSandbox {
 
     return new Promise(function(resolve, reject) {
       self.db.createReadStream().on('data', function(data) {
-            //console.log(i);
             i++;
           }).on('error', function(err) {
-            // console.log('Unable to read data stream!', err);
             return reject(err);
           }).on('close', function() {
             console.log('Block #' + i);
             self.db.put(i, value, function (err) {
               if (err) return reject(err);
-              //console.log('done');
               return resolve(value);
             });
           });
@@ -47,11 +44,10 @@ class LevelSandbox {
       })
       .on('error', function (err) {
           console.log('Oh my!', err)
-          reject(err);
+          return reject(err);
       })
       .on('close', function () {
-          console.log('Blocks count:' + count);
-          resolve(count);
+          return resolve(count);
       });
     });
   }
@@ -62,8 +58,8 @@ class LevelSandbox {
 
     return new Promise(function(resolve, reject) {
       self.db.get(key, function (err, value) {
-        if (err) reject(err);
-        resolve(value);
+        if (err) return reject(err);
+        return resolve(value);
       })
     });
   }
