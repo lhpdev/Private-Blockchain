@@ -5,21 +5,9 @@ const SHA256 = require('crypto-js/sha256');
 
 const LevelSandboxClass = require('./levelSandbox.js');
 
+const BlockClass = require('./Block.js');
+
 const db = new LevelSandboxClass.LevelSandbox();
-
-/* ===== Block Class ==============================
-|  Class with a constructor for block 			   |
-|  ===============================================*/
-
-class Block{
-	constructor(data){
-     this.hash = "",
-     this.height = 0,
-     this.body = data,
-     this.time = 0,
-     this.previousBlockHash = ""
-    }
-}
 
 /* ===== Blockchain Class ==========================
 |  Class with a constructor for new blockchain 		|
@@ -29,7 +17,7 @@ class Blockchain{
   constructor(){
     db.getBlocksCount().then((count) => {
       if(count < 1){
-        this.addBlock(new Block("First block in the chain - Genesis block"));
+        this.addBlock(new BlockClass.Block("First block in the chain - Genesis block"));
       }
     });
   }
@@ -155,22 +143,5 @@ class Blockchain{
   }
 }
 
-let blockchain = new Blockchain();
-
-(function theLoop (i) {
-  setTimeout(function () {
-      let blockTest = new Block("Test Block - " + (i + 1));
-      blockchain.addBlock(blockTest).then((result) => {
-          console.log(result);
-          i++;
-          if (i < 10) theLoop(i);
-      });
-  }, 10000);
-})(0);
-
-// blockchain.getBlockHeight().then((height) => { console.log(height) } );
-// blockchain.getBlock(0).then((block) => { console.log(block) } );
-// blockchain.getBlock(9).then((block) => { console.log(block) } );
-// blockchain.validateBlock(0).then((isValid) => { console.log(isValid) } );
-// blockchain.validateBlock(9).then((isValid) => { console.log(isValid) } );
-// blockchain.validateChain().then((result) => { console.log(result) } );
+// Export the class
+module.exports.Blockchain = Blockchain;
