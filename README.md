@@ -2,7 +2,7 @@
 
 Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
 
-This is an application where you can interact with a simple REST API over get and post request methods to get a block from your Blockchain by its Height or add one new block by informing its body content.
+This is a simple Express.js application where you can interact with a simple REST API over get and post request methods to get a block from your Blockchain by its Height or add one new block by informing its body content.
 
 ## Getting Started
 
