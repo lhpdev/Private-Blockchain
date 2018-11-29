@@ -1,6 +1,8 @@
-# Blockchain Data
+# Blockchain Data and REST API
 
 Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
+
+This is an application where you can interact with a simple REST API over get and post request methods to get a block from your Blockchain by its Height or add one new block by informing its body content.
 
 ## Getting Started
 
@@ -12,50 +14,32 @@ Installing Node and NPM is pretty straightforward using the installer package av
 
 ### Configuring your project
 
-- Use NPM to initialize your project and create package.json to store project dependencies.
+- Use NPM to setup your project install project dependencies from package.json. At the directory folder on your terminal run the command: 
 ```
-npm init
+npm install
+
 ```
-- Install crypto-js with --save flag to save dependency to our package.json file
+
+### Running your project
+
+- User node command to start the application. At the directory folder on your terminal run the command: 
 ```
-npm install crypto-js --save
-```
-- Install level with --save flag
-```
-npm install level --save
+node app.js
+
 ```
 
 ## Testing
 
-To test code:
-1: Open a command prompt or shell terminal after install node.js.
-2: Enter a node session, also known as REPL (Read-Evaluate-Print-Loop).
+To test the application:
+- For testing your requests after running the application, you can use POSTMAN or curl by following the instructions below:
+
+To make a GET request, use the following route: '/block/{index}'
+PS: {index} is the Height (number) of the block you want to get
+
+To make a POST request, use the route '/block' and inform the body content over the body of your request. Ex:
 ```
-node
-```
-3: Copy and paste your code into your node session
-4: Instantiate blockchain with blockchain variable
-```
-let blockchain = new Blockchain();
-```
-5: Generate 10 blocks using a for loop
-```
-for (var i = 0; i <= 10; i++) {
-  blockchain.addBlock(new Block("test data "+i));
+{
+  "body": "block body content"
 }
 ```
-6: Validate blockchain
-```
-blockchain.validateChain();
-```
-7: Induce errors by changing block data
-```
-let inducedErrorBlocks = [2,4,7];
-for (var i = 0; i < inducedErrorBlocks.length; i++) {
-  blockchain.chain[inducedErrorBlocks[i]].data='induced chain error';
-}
-```
-8: Validate blockchain. The chain should now fail with blocks 2,4, and 7.
-```
-blockchain.validateChain();
-```
+- You should be able if a block was added to your blockchain if the request result is a block with the body from your request

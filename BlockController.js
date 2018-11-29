@@ -27,7 +27,9 @@ class BlockController {
       let index = req.params.index;
       let blockchain = new BlockchainClass.Blockchain();
       blockchain.getBlock(index).then((block) => {
-        res.send(JSON.stringify(block).toString());
+        res.status(200).send(JSON.stringify(block).toString());
+      }).catch(() => {
+        res.status(404).send('Block not found by index: '+ index);
       });
     });
   }
@@ -37,13 +39,13 @@ class BlockController {
    */
   postNewBlock() {
     this.app.post("/block", (req, res) => {
-      if(req.body ===''){
-        res.send('No Block found to be added');
+      if((req.body.body == "") || (req.body.constructor === Object && Object.keys(req.body).length === 0)){
+        res.status(400).send('It is not possible to add a block without a body');
       } else {
         let block = req.body
         let blockchain = new BlockchainClass.Blockchain();
-        blockchain.addBlock(block).then((block) => {
-          res.send('The following block has been added: '+ JSON.stringify(block).toString());
+        blockchain.addBlock(new BlockClass.Block(block.body)).then((block) => {
+          res.status(201).send(block);
         });
       }
     });
@@ -53,6 +55,7 @@ class BlockController {
    * Help method to inizialized Mock dataset, adds 10 test blocks to the blocks array
    */
   initializeBlockchain() {
+    console.log('Initializing Blockchain...');
     let blockchain = new BlockchainClass.Blockchain();
 
     blockchain.getBlockHeight().then((height) => {
@@ -61,16 +64,17 @@ class BlockController {
           setTimeout(function () {
             let blockTest = new BlockClass.Block("Test Block - " + (i + 1));
             blockchain.addBlock(blockTest).then((result) => {
-              console.log(result);
               i++;
               if (i < 10) theLoop(i);
             });
           }, 100);
         })(0);
-      } else {
-        console.log('Initializing Blockchain...');
+
       }
+
     });
+    console.log('DONE');
+    console.log('Ready to receive \'get\' and \'post\' requests on route \'/block\'');
   }
 }
 

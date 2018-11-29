@@ -35,7 +35,7 @@ class Blockchain{
             newBlock.previousBlockHash = previousBlock.hash;
             newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
             db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { 
-              return resolve(block); 
+              return resolve(JSON.parse(block)); 
             });
           }).catch((err) => { return reject(err) });
         } else {
@@ -45,7 +45,7 @@ class Blockchain{
           // Block hash with SHA256 using newBlock and converting to a string
           newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
           db.addDataToLevelDB(JSON.stringify(newBlock).toString()).then((block) => { 
-            return resolve(block); 
+            return resolve(JSON.parse(block)); 
           });
         }
       }).catch((err) => {

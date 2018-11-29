@@ -20,7 +20,6 @@ class LevelSandbox {
       }).on('error', function(err) {
         return reject(err);
       }).on('close', function() {
-        console.log('Block #' + i);
         self.db.put(i, value, function (err) {
           if (err) return reject(err);
           return resolve(value);
