@@ -26,7 +26,7 @@ class BlockController {
       blockchain.getBlock(index).then((block) => {
         res.status(200).send(block);
       }).catch(() => {
-        res.status(404).send('Block not found by index: '+ index);
+        res.status(404).send({ error: { message: 'Block #' + index + ' not found' } });
       });
     });
   }
@@ -37,7 +37,7 @@ class BlockController {
   postNewBlock() {
     this.app.post("/block", (req, res) => {
       if((req.body.body == "") || (req.body.constructor === Object && Object.keys(req.body).length === 0)){
-        res.status(400).send('It is not possible to add a block without a body');
+        res.status(400).send({ error: { message: 'It is not possible to add a block without a body' } });
       } else {
         let block = req.body
         let blockchain = new BlockchainClass.Blockchain();
