@@ -1,4 +1,3 @@
-const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./Block.js');
 const BlockchainClass = require('./Blockchain');
 
@@ -12,8 +11,6 @@ class BlockController {
    */
   constructor(app) {
     this.app = app;
-    // this.myBlockChain = new BlockchainClass.myBlockChain();
-    // this.blocks = [];
     this.initializeBlockchain();
     this.getBlockByIndex();
     this.postNewBlock();
@@ -27,7 +24,7 @@ class BlockController {
       let index = req.params.index;
       let blockchain = new BlockchainClass.Blockchain();
       blockchain.getBlock(index).then((block) => {
-        res.status(200).send(JSON.stringify(block).toString());
+        res.status(200).send(block);
       }).catch(() => {
         res.status(404).send('Block not found by index: '+ index);
       });
@@ -57,21 +54,18 @@ class BlockController {
   initializeBlockchain() {
     console.log('Initializing Blockchain...');
     let blockchain = new BlockchainClass.Blockchain();
-
     blockchain.getBlockHeight().then((height) => {
       if (height < 1) {
         (function theLoop (i) {
           setTimeout(function () {
             let blockTest = new BlockClass.Block("Test Block - " + (i + 1));
-            blockchain.addBlock(blockTest).then((result) => {
+            blockchain.addBlock(blockTest).then(() => {
               i++;
               if (i < 10) theLoop(i);
             });
           }, 100);
         })(0);
-
       }
-
     });
     console.log('DONE');
     console.log('Ready to receive \'get\' and \'post\' requests on route \'/block\'');
