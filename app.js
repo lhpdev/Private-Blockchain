@@ -3,6 +3,9 @@ const express = require("express");
 //Importing BodyParser.js module
 const bodyParser = require("body-parser");
 
+const MempoolClass = require('./Mempool.js');
+const BlockchainClass = require('./Blockchain');
+
 /**
  * Class Definition for the REST API
  */
@@ -12,6 +15,8 @@ class BlockAPI {
    */
   constructor() {
     this.app = express();
+    global.mempool = new MempoolClass.Mempool();
+    global.blockchain = new BlockchainClass.Blockchain();
     this.initExpress();
     this.initExpressMiddleWare();
     this.initControllers();
@@ -37,7 +42,8 @@ class BlockAPI {
    * Initilization of all the controllers
    */
 	initControllers() {
-		require("./BlockController.js")(this.app);
+    require("./BlockController.js")(this.app);
+    require("./MempoolController.js")(this.app);
 	}
 
   /**

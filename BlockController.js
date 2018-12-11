@@ -7,7 +7,7 @@ const BlockchainClass = require('./Blockchain');
 class BlockController {
   /**
    * Constructor to create a new BlockController, you need to initialize here all your endpoints
-   * @param {*} app 
+   * @param {*} app
    */
   constructor(app) {
     this.app = app;
@@ -22,7 +22,6 @@ class BlockController {
   getBlockByIndex() {
     this.app.get("/block/:index", (req, res) => {
       let index = req.params.index;
-      let blockchain = new BlockchainClass.Blockchain();
       blockchain.getBlock(index).then((block) => {
         res.status(200).send(block);
       }).catch(() => {
@@ -36,14 +35,29 @@ class BlockController {
    */
   postNewBlock() {
     this.app.post("/block", (req, res) => {
-      if((req.body.body == "") || (req.body.constructor === Object && Object.keys(req.body).length === 0)){
-        res.status(400).send({ error: { message: 'It is not possible to add a block without a body' } });
+      if(((req.body.star).length > 1) || (req.body.constructor === Object && Object.keys(req.body).length === 0)){
+        res.status(400).send({ error: { message: 'Please inform a addres and only one star' } });
       } else {
-        let block = req.body
-        let blockchain = new BlockchainClass.Blockchain();
-        blockchain.addBlock(new BlockClass.Block(block.body)).then((block) => {
-          res.status(201).send(block);
-        });
+        let isValid = mempool.verifyAddressRequest(req.body.address);
+
+        if(isValid){
+          let body = {
+            address: req.body.address,
+            star: {
+                    ra: req.body.star.ra,
+                    dec: req.body.star.dec,
+                    story: Buffer.from(req.body.star.story).toString('hex')
+                  }
+          };
+          let block = new BlockClass.Block(body);
+
+          blockchain.addBlock(block).then((block) => {
+            res.status(201).send(block);
+          });
+
+        } else {
+          res.status(400).send({ error: { message: 'Address is not valid' } });
+        }
       }
     });
   }
@@ -53,7 +67,6 @@ class BlockController {
    */
   initializeBlockchain() {
     console.log('Initializing Blockchain...');
-    let blockchain = new BlockchainClass.Blockchain();
     blockchain.getBlockHeight().then((height) => {
       if (height < 1) {
         (function theLoop (i) {
