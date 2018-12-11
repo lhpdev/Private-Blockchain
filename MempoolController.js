@@ -1,19 +1,17 @@
-// const BlockClass = require('./Block.js');
-// const BlockchainClass = require('./Blockchain');
-
-// const bitcoin = require('bitcoinjs-lib');
-
+//timeout for requestValidation
 const TimeoutRequestsWindowTime = 5*60*1000;
-const TimeoutMessageValidateWindowTime = 30*60*1000;
 
 /**
- * Controller Definition to encapsulate routes to work with blocks
+ * Controller Definition to encapsulate routes to work with requests validation
  */
+
 class MempoolController {
+
   /**
-   * Constructor to create a new BlockController, you need to initialize here all your endpoints
+   * Constructor to create a new MempoolController, you need to initialize here all your endpoints
    * @param {*} app
    */
+
   constructor(app) {
     this.app = app;
     this.submitValidationRequest();
@@ -21,20 +19,25 @@ class MempoolController {
   }
 
   /**
-   * Implement a POST Endpoint to add a new Block, url: "/api/block"
+   * Implement a POST Endpoint to add a request validation, url: "/requestValitation/"
    */
+
   submitValidationRequest() {
     this.app.post("/requestValidation", (req, res) => {
+      //check if all parameters were provided correctly
       if((req.body.address == "") || (req.body.constructor === Object && Object.keys(req.body).length === 0)) {
         res.status(400).send({ error: { message: 'It is not possible to validate your request without an address' } });
       } else {
+        //checks if RequestionValidation is already at the Mempool
         if (mempool.checkRequestValidation(req.body.address)) {
+          //if the request validation is already at the Mempool returns updated request validation
           let requestObject = mempool.getRequestValidation(req.body.address);
           let timeElapse = (new Date().getTime().toString().slice(0,-3)) - requestObject.requestTimeStamp.slice(0,-3);
           let timeLeft = (TimeoutRequestsWindowTime/1000) - timeElapse;
           requestObject.validationWindow = timeLeft;
           res.status(201).send(requestObject);
         } else {
+          //if no request validation was found then add it to the Mempool
           let timestamp = new Date().getTime();
           const requestObject = {
             walletAddress: req.body.address,
@@ -49,12 +52,12 @@ class MempoolController {
     });
   }
   /**
-   * Implement a POST Endpoint to add a new Block, url: "/api/block"
+   * Implement a POST Endpoint to validate message-signature, url: "/message-signature/validate"
    */
   validateMessage() {
     this.app.post("/message-signature/validate", (req, res) => {
       if(((req.body.address == "") || (req.body.signature == "")) || (req.body.constructor === Object && Object.keys(req.body).length === 0)){
-        res.status(400).send({ error: { message: 'It is not possible to validate a signature without an address and signature' } });
+        res.status(400).send({ error: { message: 'It is not possible to validate message-signature without the wallet address and the message-signature' } });
       } else {
         if (mempool.checkRequestValidation(req.body.address)) {
           if (mempool.checkValidRequest(req.body.address)) {

@@ -13,30 +13,6 @@ class Mempool {
     this.timeoutArray = [];
   }
 
-  addARequestValidation(request) {
-    this.mempool.push(request);
-    this.timeoutRequests.push(request.walletAddress);
-    setTimeout(() => { this.removeRequestValidation(request.walletAddress) }, TimeoutRequestsWindowTime );
-  }
-
-  removeRequestValidation(address) {
-    let removedRequestValidation = this.getRequestValidation(address);
-    this.timeoutRequests.push(removedRequestValidation);
-    let mempoolupdated = this.mempool.filter((request) => {
-      return request.walletAddress != address;
-    });
-    this.mempool = mempoolupdated.slice(0);
-  }
-
-  removeValidRequest(address) {
-    let removedValidRequest = this.getValidRequest(address);
-    this.timeoutArray.push(removedValidRequest);
-    let updatedMempoolValid = this.mempoolValid.filter((request) => {
-      return request.status.address != address;
-    });
-    this.mempoolValid = updatedMempoolValid;
-  }
-
   checkRequestValidation(address){
     var found = this.mempool.some(function (requestObject) {
       return requestObject.walletAddress === address
@@ -51,18 +27,27 @@ class Mempool {
     return found;
   }
 
-  verifyAddressRequest(address) {
-    let requestValidation = this.checkRequestValidation(address);
-    let validRequest = this.checkValidRequest(address);
-    if (requestValidation && validRequest ) { return true } else { return false }
-  }
-
   getRequestValidation(address) {
     return this.mempool.filter( request => { return request.walletAddress === address })[0];
   }
 
   getValidRequest(address) {
     return this.mempoolValid.filter( request => { return request.status.address === address })[0];
+  }
+
+  addARequestValidation(request) {
+    this.mempool.push(request);
+    this.timeoutRequests.push(request.walletAddress);
+    setTimeout(() => { this.removeRequestValidation(request.walletAddress) }, TimeoutRequestsWindowTime );
+  }
+
+  removeRequestValidation(address) {
+    let removedRequestValidation = this.getRequestValidation(address);
+    this.timeoutRequests.push(removedRequestValidation);
+    let mempoolupdated = this.mempool.filter((request) => {
+      return request.walletAddress != address;
+    });
+    this.mempool = mempoolupdated.slice(0);
   }
 
   validateRequestByWallet(message, walletAddress, signature){
@@ -83,6 +68,21 @@ class Mempool {
       setTimeout(() => { this.removeValidRequest(walletAddress) }, TimeoutMessageValidateWindowTime );
     }
     return isValid;
+  }
+
+  removeValidRequest(address) {
+    let removedValidRequest = this.getValidRequest(address);
+    this.timeoutArray.push(removedValidRequest);
+    let updatedMempoolValid = this.mempoolValid.filter((request) => {
+      return request.status.address != address;
+    });
+    this.mempoolValid = updatedMempoolValid;
+  }
+
+  verifyAddressRequest(address) {
+    let requestValidation = this.checkRequestValidation(address);
+    let validRequest = this.checkValidRequest(address);
+    if (requestValidation && validRequest ) { return true } else { return false }
   }
 }
 

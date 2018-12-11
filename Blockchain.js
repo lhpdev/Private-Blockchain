@@ -2,11 +2,11 @@
 |  Learn more: Crypto-js: https://github.com/brix/crypto-js  |
 |  =========================================================*/
 const SHA256 = require('crypto-js/sha256');
-
+//Importing levelSandbox.js class
 const LevelSandboxClass = require('./levelSandbox.js');
-
+//Importing Block.js class
 const BlockClass = require('./Block.js');
-
+//Creating a new LEvelSandbox object
 const db = new LevelSandboxClass.LevelSandbox();
 
 /* ===== Blockchain Class ==========================
@@ -54,8 +54,8 @@ class Blockchain{
     });
   }
 
-  // Get block height (returns the count);
-  getBlockHeight(){ //modify this function to getBlockHeight by blockHeight from the db and not from the array
+  // Get block by height (returns the count);
+  getBlockHeight(){
     return new Promise((resolve, reject) => {
       db.getBlocksCount().then((count) => { 
         return resolve(count); 
@@ -66,11 +66,44 @@ class Blockchain{
   }
 
   // get block
-  getBlock(blockHeight){ //modify this function to getBlock by blockHeight from the db and not from the array
+  getBlock(key){
     //return object as a single string
     return new Promise((resolve, reject) => {
-      db.getLevelDBData(blockHeight).then((block) => {
-        return resolve(JSON.parse(block));
+      db.getLevelDBData(key).then((block) => {
+        return resolve(block);
+      }).catch((err) => { 
+        return reject(err);
+      });
+    });
+  }
+
+  getBlockByHeight(height){
+    //return object as JSON
+    return new Promise((resolve, reject) => {
+      db.getBlockByHeight(height).then((block) => {
+        return resolve(block);
+      }).catch((err) => { 
+        return reject(err);
+      });
+    });
+  }
+
+  getBlockByHash(hash){
+    //return object as JSON
+    return new Promise((resolve, reject) => {
+      db.getBlockByHash(hash).then((block) => {
+        return resolve(block);
+      }).catch((err) => { 
+        return reject(err);
+      });
+    });
+  }
+
+  getBlockByWalletAddress(address){
+    //return object as JSON
+    return new Promise((resolve, reject) => {
+      db.getBlockByWalletAddress(address).then((result) => {
+        return resolve(result);
       }).catch((err) => { 
         return reject(err);
       });

@@ -2,8 +2,9 @@
 const express = require("express");
 //Importing BodyParser.js module
 const bodyParser = require("body-parser");
-
+//Importing Mempool.js class
 const MempoolClass = require('./Mempool.js');
+//Importing Blockchain.js class
 const BlockchainClass = require('./Blockchain');
 
 /**
@@ -44,6 +45,7 @@ class BlockAPI {
 	initControllers() {
     require("./BlockController.js")(this.app);
     require("./MempoolController.js")(this.app);
+    require("./StarsController.js")(this.app);
 	}
 
   /**
